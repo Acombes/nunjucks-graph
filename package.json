@@ -4,7 +4,7 @@
   "description": "Parse NJK files and extract a graph of includes and extends",
   "main": "nunjucks-map.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "keywords": [
     "nunjucks",
@@ -14,5 +14,9 @@
   "license": "ISC",
   "dependencies": {
     "nunjucks": "^3.2.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.0.2"
   }
 }
