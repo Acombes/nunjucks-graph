@@ -3,6 +3,21 @@ const path = require('path')
 const nunjucks = require('nunjucks')
 
 const INCLUDE_REGEXP = /\{% include [\'\"]([-\/\\'\w.]+)[\'\"] %\}/g
+const EXTENDS_REGEXP = /\{% extends [\'\"]([-\/\\'\w.]+)[\'\"] %\}/g
+
+function getFileChildren (nunjucks, templateName, childrenRegex) {
+  if (typeof nunjucks === 'undefined') throw new Error('Base Nunjucks directory must be set first')
+
+  const template = nunjucks.getTemplate(templateName, false)
+  const children = []
+
+  let match
+  while ((match = childrenRegex.exec(template.tmplStr))) {
+    children.push(path.join(path.parse(templateName).dir, match[ 1 ]))
+  }
+
+  return children
+}
 
 class NunjucksGraph {
   constructor (options, dir) {
@@ -27,19 +42,6 @@ class NunjucksGraph {
     }, [])
   }
 
-  _getFileChildren (templateName, childrenRegex) {
-    if (typeof this.nunjucks === 'undefined') throw new Error('Base Nunjucks directory must be set first')
-
-    const template = this.nunjucks.getTemplate(templateName, false)
-    const includes = []
-
-    let match
-    while ((match = childrenRegex.exec(template.tmplStr))) {
-      includes.push(path.join(path.parse(templateName).dir, match[ 1 ]))
-    }
-
-    return includes
-  }
 
   setDir (dirpath) {
     this.dir = dirpath
@@ -47,24 +49,43 @@ class NunjucksGraph {
   }
 
   addFile (file) {
-    const children = this._getFileChildren(file, INCLUDE_REGEXP)
+    const includes = getFileChildren(this.nunjucks, file, INCLUDE_REGEXP)
+    const extend = getFileChildren(this.nunjucks, file, EXTENDS_REGEXP)
 
     if (this.index[ file ]) {
-      this.index[ file ].includes.push(...children)
+      this.index[ file ].includes.push(...includes)
+      this.index[ file ].extends.push(...extend) // There should only be one, but just in case...
     } else {
       this.index[ file ] = {
-        includes: children,
-        includedBy: []
+        includes: includes,
+        includedBy: [],
+        extends: extend,
+        extendedBy: [],
       }
     }
 
-    children.forEach(child => {
-      if (this.index[ child ]) {
-        this.index[ child ].includedBy.push(file)
+    includes.forEach(include => {
+      if (this.index[ include ]) {
+        this.index[ include ].includedBy.push(file)
       } else {
-        this.index[ child ] = {
+        this.index[ include ] = {
           includes: [],
-          includedBy: [ file ]
+          includedBy: [ file ],
+          extends: [],
+          extendedBy: []
+        }
+      }
+    })
+
+    extend.forEach(parent => {
+      if (this.index[ parent ]) {
+        this.index[ parent ].extendedBy.push(file)
+      } else {
+        this.index[ parent ] = {
+          includes: [],
+          includedBy: [],
+          extends: [],
+          extendedBy: [ file ]
         }
       }
     })
