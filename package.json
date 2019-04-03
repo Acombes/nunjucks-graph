@@ -1,0 +1,18 @@
+{
+  "name": "nunjucks-map",
+  "version": "1.0.0",
+  "description": "Parse NJK files and extract a graph of includes and extends",
+  "main": "nunjucks-map.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nunjucks",
+    "graph"
+  ],
+  "author": "Antoine COMBES",
+  "license": "ISC",
+  "dependencies": {
+    "nunjucks": "^3.2.0"
+  }
+}
