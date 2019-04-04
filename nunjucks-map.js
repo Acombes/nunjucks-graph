@@ -2,8 +2,8 @@ const fs = require('fs')
 const path = require('path')
 const nunjucks = require('nunjucks')
 
-const INCLUDE_REGEXP = /\{% include [\'\"]([-\/\\'\w.]+)[\'\"] %\}/g
-const EXTENDS_REGEXP = /\{% extends [\'\"]([-\/\\'\w.]+)[\'\"] %\}/g
+const INCLUDE_REGEXP = /\{% ?include ['"]([-\/\w.]+)['"] ?%\}/g
+const EXTENDS_REGEXP = /\{% ?extends ['"]([-\/\w.]+)[\'\"] ?%\}/g
 
 function getFileChildren (nunjucks, templateName, childrenRegex) {
   if (typeof nunjucks === 'undefined') throw new Error('Base Nunjucks directory must be set first')

@@ -4,7 +4,7 @@ const { assertInclusion } = require('./utils')
 
 const nunjucksMap = require('..')
 
-describe('Simple', () => {
+describe('Nested', () => {
   it('should only show main.njk, partial.njk and sub-partial.njk with inclusion chain: main > partial > sub-partial', () => {
     const baseDir = 'test/fixtures/nested'
     const main = path.resolve(`${baseDir}/main.njk`)
