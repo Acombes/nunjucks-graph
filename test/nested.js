@@ -2,7 +2,7 @@ const path = require('path')
 const describe = require('mocha').describe
 const { assertInclusion } = require('./utils')
 
-const nunjucksMap = require('..')
+const nunjucksGraph = require('..')
 
 describe('Nested', () => {
   it('should only show main.njk, partial.njk and sub-partial.njk with inclusion chain: main > partial > sub-partial', () => {
@@ -11,7 +11,7 @@ describe('Nested', () => {
     const partial = path.resolve(`${baseDir}/partial.njk`)
     const subpartial = path.resolve(`${baseDir}/sub-partial.njk`)
 
-    const graph = nunjucksMap.parseDir(baseDir)
+    const graph = nunjucksGraph.parseDir(baseDir)
 
     assertInclusion(graph, main, partial)
     assertInclusion(graph, partial, subpartial)

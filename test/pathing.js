@@ -2,7 +2,7 @@ const path = require('path')
 const describe = require('mocha').describe
 const { assertInclusion } = require('./utils')
 
-const nunjucksMap = require('..')
+const nunjucksGraph = require('..')
 
 describe('Pathing', () => {
   describe('Descending', () => {
@@ -11,7 +11,7 @@ describe('Pathing', () => {
       const main = path.resolve(`${baseDir}/main.njk`)
       const partial = path.resolve(`${baseDir}/partials/partial.njk`)
 
-      const graph = nunjucksMap.parseDir(baseDir)
+      const graph = nunjucksGraph.parseDir(baseDir)
 
       assertInclusion(graph, main, partial)
     })
@@ -23,7 +23,7 @@ describe('Pathing', () => {
       const main = path.resolve(`${baseDir}/main/main.njk`)
       const partial = path.resolve(`${baseDir}/partial.njk`)
 
-      const graph = nunjucksMap.parseDir(baseDir)
+      const graph = nunjucksGraph.parseDir(baseDir)
 
       assertInclusion(graph, main, partial)
     })

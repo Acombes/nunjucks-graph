@@ -1,8 +1,8 @@
 {
-  "name": "nunjucks-map",
+  "name": "nunjucks-graph",
   "version": "1.0.0",
   "description": "Parse NJK files and extract a graph of includes and extends",
-  "main": "nunjucks-map.js",
+  "main": "nunjucks-graph.js",
   "scripts": {
     "test": "mocha"
   },
