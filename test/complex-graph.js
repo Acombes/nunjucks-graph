@@ -11,7 +11,7 @@ describe('Complex graph', () => {
       const main = path.resolve(`${baseDir}/main.njk`)
       const partial = path.resolve(`${baseDir}/partial.njk`)
 
-      const graph = nunjucksGraph.parseDir(baseDir).getGraph()
+      const graph = nunjucksGraph.parseDir(baseDir).getIndex()
 
       assertInclusion(graph, main, partial)
     })
@@ -24,7 +24,7 @@ describe('Complex graph', () => {
       const partial1 = path.resolve(`${baseDir}/partial-1.njk`)
       const partial2 = path.resolve(`${baseDir}/partial-2.njk`)
 
-      const graph = nunjucksGraph.parseDir(baseDir).getGraph()
+      const graph = nunjucksGraph.parseDir(baseDir).getIndex()
 
       assertInclusion(graph, main, partial1)
       assertInclusion(graph, main, partial2)
@@ -38,7 +38,7 @@ describe('Complex graph', () => {
         const main = path.resolve(`${baseDir}/main.njk`)
         const partial = path.resolve(`${baseDir}/partials/partial.njk`)
 
-        const graph = nunjucksGraph.parseDir(baseDir).getGraph()
+        const graph = nunjucksGraph.parseDir(baseDir).getIndex()
 
         assertInclusion(graph, main, partial)
       })
@@ -50,7 +50,7 @@ describe('Complex graph', () => {
         const main = path.resolve(`${baseDir}/main/main.njk`)
         const partial = path.resolve(`${baseDir}/partial.njk`)
 
-        const graph = nunjucksGraph.parseDir(baseDir).getGraph()
+        const graph = nunjucksGraph.parseDir(baseDir).getIndex()
 
         assertInclusion(graph, main, partial)
       })
@@ -64,7 +64,7 @@ describe('Complex graph', () => {
       const partial = path.resolve(`${baseDir}/partial.njk`)
       const subpartial = path.resolve(`${baseDir}/sub-partial.njk`)
 
-      const graph = nunjucksGraph.parseDir(baseDir).getGraph()
+      const graph = nunjucksGraph.parseDir(baseDir).getIndex()
 
       assertInclusion(graph, main, partial)
       assertInclusion(graph, partial, subpartial)
@@ -78,7 +78,7 @@ describe('Complex graph', () => {
       const mainImportAs = path.resolve(`${baseDir}/main-import-as.njk`)
       const macros = path.resolve(`${baseDir}/macros.njk`)
 
-      const graph = nunjucksGraph.parseDir(baseDir).getGraph()
+      const graph = nunjucksGraph.parseDir(baseDir).getIndex()
 
       assertImport(graph, mainFromImport, macros)
       assertImport(graph, mainImportAs, macros)
@@ -91,7 +91,7 @@ describe('Complex graph', () => {
       const parent = path.resolve(`${baseDir}/parent.njk`)
       const child = path.resolve(`${baseDir}/child.njk`)
 
-      const graph = nunjucksGraph.parseDir(baseDir).getGraph()
+      const graph = nunjucksGraph.parseDir(baseDir).getIndex()
 
       assertExtension(graph, parent, child)
     })

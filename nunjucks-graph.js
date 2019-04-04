@@ -2,9 +2,11 @@ const fs = require('fs')
 const path = require('path')
 const nunjucks = require('nunjucks')
 
-const INCLUDE_REGEXP = /\{% ?include ['"]([-\/\w.]+)['"] ?%\}/g
-const EXTENDS_REGEXP = /\{% ?extends ['"]([-\/\w.]+)[\'\"] ?%\}/g
-const IMPORTS_REGEXP = /\{% ?(?:import|from) ["']([-_\/\w.]+)["'].*%\}/g
+const REGEXP = {
+  INCLUDE: /{% ?include ['"]([-\/\w.]+)['"] ?%}/g,
+  EXTENDS: /{% ?extends ['"]([-\/\w.]+)['"] ?%}/g,
+  IMPORTS: /{% ?(?:import|from) ["']([-_\/\w.]+)["'].*%}/g,
+}
 
 const makeObject  = ({includes, includedBy, extend, extendedBy, imports, importedBy}) => ({
   includes: includes || [],
@@ -15,6 +17,13 @@ const makeObject  = ({includes, includedBy, extend, extendedBy, imports, importe
   importedBy: importedBy || []
 })
 
+/**
+ * Build a list of files a given templates depends on given a RegExp matching the dependency instruction.
+ * @param {Object} nunjucks - A Nunjucks Environment instance.
+ * @param {String} templateName - The template's name.
+ * @param {RegExp} childrenRegex - The RegExp to lookup inside the template. Its first group should match the target file's relative path.
+ * @returns {Array} - A list of absolute filepaths.
+ */
 function getFileChildren (nunjucks, templateName, childrenRegex) {
   if (typeof nunjucks === 'undefined') throw new Error('Base Nunjucks directory must be set first')
 
@@ -29,7 +38,28 @@ function getFileChildren (nunjucks, templateName, childrenRegex) {
   return children
 }
 
+/**
+ * Gather all files matching given extensions in the given directory.
+ * @param {String} dir - The directory in which to fetch the files.
+ * @param {Array<String>} extensions - The extensions the resulting files have to match.
+ * @returns {Array} - A list of absolute filepaths.
+ */
+function getAllNjkFiles (dir, extensions) {
+  if (typeof dir === 'undefined') { dir = this.dir }
+
+  return fs.readdirSync(dir).reduce((files, file) => {
+    const name = path.join(dir, file)
+    const isDirectory = fs.statSync(name).isDirectory()
+    if (!isDirectory && !file.match(new RegExp(`\\.(${extensions.join('|')})$`))) return files
+    return isDirectory ? [ ...files, ...getAllNjkFiles(name, extensions) ] : [ ...files, path.resolve(name) ]
+  }, [])
+}
+
 class NunjucksGraph {
+  /**
+   * @param {Object} options
+   * @param {String} dir - Absolute path to the graph's base directory
+   */
   constructor (options, dir) {
     this.extensions = options.extensions
 
@@ -37,27 +67,25 @@ class NunjucksGraph {
 
     if (dir) {
       this.setDir(dir)
-      this._getAllNjkFiles(this.dir).forEach(file => {
+      getAllNjkFiles(this.dir, this.extensions).forEach(file => {
         this.addFile(file)
       })
     }
   }
 
-  _getAllNjkFiles (dir) {
-    return fs.readdirSync(dir).reduce((files, file) => {
-      const name = path.join(dir, file)
-      const isDirectory = fs.statSync(name).isDirectory()
-      if (!isDirectory && !file.match(new RegExp(`\\.(${this.extensions.join('|')})$`))) return files
-      return isDirectory ? [ ...files, ...this._getAllNjkFiles(name) ] : [ ...files, path.resolve(name) ]
-    }, [])
-  }
-
-
+  /**
+   * Set the graph's base directory
+   * @param {String} dirpath
+   */
   setDir (dirpath) {
     this.dir = dirpath
     this.nunjucks = new nunjucks.Environment(new nunjucks.FileSystemLoader(dirpath))
   }
 
+  /**
+   * Add a file to the graph's index
+   * @param {String} file - The absolute path to the file
+   */
   addFile (file) {
     const addRelationship = (parent, childrenByProperties) => {
       if (this.index [ parent ]) {
@@ -72,9 +100,9 @@ class NunjucksGraph {
       }
     }
 
-    const includes = getFileChildren(this.nunjucks, file, INCLUDE_REGEXP)
-    const extend = getFileChildren(this.nunjucks, file, EXTENDS_REGEXP)
-    const imports = getFileChildren(this.nunjucks, file, IMPORTS_REGEXP)
+    const includes = getFileChildren(this.nunjucks, file, REGEXP.INCLUDE)
+    const extend = getFileChildren(this.nunjucks, file, REGEXP.EXTENDS)
+    const imports = getFileChildren(this.nunjucks, file, REGEXP.IMPORTS)
 
     addRelationship(file, { includes, imports, extend })
 
@@ -83,11 +111,19 @@ class NunjucksGraph {
     imports .forEach(imp     => addRelationship(imp,     { importedBy: [ file ] }))
   }
 
-  getGraph () {
+  /**
+   * Get the graph's index
+   * @returns {Object} - The graph's index
+   */
+  getIndex () {
     return this.index
   }
 
-  getSimpleGraph () {
+  /**
+   * Build and get a simplified version of the graph's index where all types of dependencies are merged
+   * @returns {Object} - The graph's simplified index
+   */
+  getSimpleIndex () {
     return Object.entries(this.index).reduce((obj, [filePath, fileDependencies]) => {
       obj[ filePath ] = {
         parents: [...fileDependencies.includedBy, ...fileDependencies.importedBy, ...fileDependencies.extend],
@@ -98,6 +134,12 @@ class NunjucksGraph {
   }
 }
 
+/**
+ * Parse a directory and extract a dependency graph from it
+ * @param {String} dirpath
+ * @param options
+ * @returns {NunjucksGraph}
+ */
 module.exports.parseDir = (dirpath, options) => {
   if (fs.lstatSync(dirpath).isDirectory()) {
     dirpath = path.resolve(dirpath)

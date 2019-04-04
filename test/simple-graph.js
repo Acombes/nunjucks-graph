@@ -11,7 +11,7 @@ describe('Simple graph', () => {
       const main = path.resolve(`${baseDir}/main.njk`)
       const partial = path.resolve(`${baseDir}/partial.njk`)
 
-      const graph = nunjucksGraph.parseDir(baseDir).getSimpleGraph()
+      const graph = nunjucksGraph.parseDir(baseDir).getSimpleIndex()
 
       assertDependency(graph, main, partial)
     })
@@ -24,7 +24,7 @@ describe('Simple graph', () => {
       const partial1 = path.resolve(`${baseDir}/partial-1.njk`)
       const partial2 = path.resolve(`${baseDir}/partial-2.njk`)
 
-      const simpleGraph = nunjucksGraph.parseDir(baseDir).getSimpleGraph()
+      const simpleGraph = nunjucksGraph.parseDir(baseDir).getSimpleIndex()
 
       assertDependency(simpleGraph, main, partial1)
       assertDependency(simpleGraph, main, partial2)
@@ -38,7 +38,7 @@ describe('Simple graph', () => {
         const main = path.resolve(`${baseDir}/main.njk`)
         const partial = path.resolve(`${baseDir}/partials/partial.njk`)
 
-        const graph = nunjucksGraph.parseDir(baseDir).getSimpleGraph()
+        const graph = nunjucksGraph.parseDir(baseDir).getSimpleIndex()
 
         assertDependency(graph, main, partial)
       })
@@ -50,7 +50,7 @@ describe('Simple graph', () => {
         const main = path.resolve(`${baseDir}/main/main.njk`)
         const partial = path.resolve(`${baseDir}/partial.njk`)
 
-        const graph = nunjucksGraph.parseDir(baseDir).getSimpleGraph()
+        const graph = nunjucksGraph.parseDir(baseDir).getSimpleIndex()
 
         assertDependency(graph, main, partial)
       })
@@ -64,7 +64,7 @@ describe('Simple graph', () => {
       const partial = path.resolve(`${baseDir}/partial.njk`)
       const subpartial = path.resolve(`${baseDir}/sub-partial.njk`)
 
-      const graph = nunjucksGraph.parseDir(baseDir).getSimpleGraph()
+      const graph = nunjucksGraph.parseDir(baseDir).getSimpleIndex()
 
       assertDependency(graph, main, partial)
       assertDependency(graph, partial, subpartial)
@@ -78,7 +78,7 @@ describe('Simple graph', () => {
       const mainImportAs = path.resolve(`${baseDir}/main-import-as.njk`)
       const macros = path.resolve(`${baseDir}/macros.njk`)
 
-      const graph = nunjucksGraph.parseDir(baseDir).getSimpleGraph()
+      const graph = nunjucksGraph.parseDir(baseDir).getSimpleIndex()
 
       assertDependency(graph, mainFromImport, macros)
       assertDependency(graph, mainImportAs, macros)
@@ -91,7 +91,7 @@ describe('Simple graph', () => {
       const parent = path.resolve(`${baseDir}/parent.njk`)
       const child = path.resolve(`${baseDir}/child.njk`)
 
-      const graph = nunjucksGraph.parseDir(baseDir).getSimpleGraph()
+      const graph = nunjucksGraph.parseDir(baseDir).getSimpleIndex()
 
       assertDependency(graph, parent, child)
     })
