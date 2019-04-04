@@ -4,6 +4,16 @@ const nunjucks = require('nunjucks')
 
 const INCLUDE_REGEXP = /\{% ?include ['"]([-\/\w.]+)['"] ?%\}/g
 const EXTENDS_REGEXP = /\{% ?extends ['"]([-\/\w.]+)[\'\"] ?%\}/g
+const IMPORTS_REGEXP = /\{% ?(?:import|from) ["']([-_\/\w.]+)["'].*%\}/g
+
+const makeObject  = ({includes, includedBy, extend, extendedBy, imports, importedBy}) => ({
+  includes: includes || [],
+  includedBy: includedBy || [],
+  extend: extend || [],
+  extendedBy: extendedBy || [],
+  imports: imports || [],
+  importedBy: importedBy || []
+})
 
 function getFileChildren (nunjucks, templateName, childrenRegex) {
   if (typeof nunjucks === 'undefined') throw new Error('Base Nunjucks directory must be set first')
@@ -49,46 +59,28 @@ class NunjucksGraph {
   }
 
   addFile (file) {
-    const includes = getFileChildren(this.nunjucks, file, INCLUDE_REGEXP)
-    const extend = getFileChildren(this.nunjucks, file, EXTENDS_REGEXP)
-
-    if (this.index[ file ]) {
-      this.index[ file ].includes.push(...includes)
-      this.index[ file ].extends.push(...extend) // There should only be one, but just in case...
-    } else {
-      this.index[ file ] = {
-        includes: includes,
-        includedBy: [],
-        extends: extend,
-        extendedBy: [],
+    const addRelationship = (parent, childrenByProperties) => {
+      if (this.index [ parent ]) {
+        Object.entries(childrenByProperties).forEach(([propName, propValue]) => {
+          this.index[ parent ][propName].push(...propValue)
+        })
+      } else {
+        this.index[parent] = makeObject(Object.entries(childrenByProperties).reduce((obj, [propName, propValue]) => {
+          obj[propName] = propValue
+          return obj
+        }, {}))
       }
     }
 
-    includes.forEach(include => {
-      if (this.index[ include ]) {
-        this.index[ include ].includedBy.push(file)
-      } else {
-        this.index[ include ] = {
-          includes: [],
-          includedBy: [ file ],
-          extends: [],
-          extendedBy: []
-        }
-      }
-    })
+    const includes = getFileChildren(this.nunjucks, file, INCLUDE_REGEXP)
+    const extend = getFileChildren(this.nunjucks, file, EXTENDS_REGEXP)
+    const imports = getFileChildren(this.nunjucks, file, IMPORTS_REGEXP)
 
-    extend.forEach(parent => {
-      if (this.index[ parent ]) {
-        this.index[ parent ].extendedBy.push(file)
-      } else {
-        this.index[ parent ] = {
-          includes: [],
-          includedBy: [],
-          extends: [],
-          extendedBy: [ file ]
-        }
-      }
-    })
+    addRelationship(file, { includes, imports, extend })
+
+    includes.forEach(include => addRelationship(include, { includedBy: [ file ] }))
+    extend  .forEach(parent  => addRelationship(parent,  { extendedBy: [ file ] }))
+    imports .forEach(imp     => addRelationship(imp,     { importedBy: [ file ] }))
   }
 }
 
