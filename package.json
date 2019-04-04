@@ -11,7 +11,7 @@
     "graph"
   ],
   "author": "Antoine COMBES",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "nunjucks": "^3.2.0"
   },
