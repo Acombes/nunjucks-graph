@@ -82,6 +82,20 @@ class NunjucksGraph {
     extend  .forEach(parent  => addRelationship(parent,  { extendedBy: [ file ] }))
     imports .forEach(imp     => addRelationship(imp,     { importedBy: [ file ] }))
   }
+
+  getGraph () {
+    return this.index
+  }
+
+  getSimpleGraph () {
+    return Object.entries(this.index).reduce((obj, [filePath, fileDependencies]) => {
+      obj[ filePath ] = {
+        parents: [...fileDependencies.includedBy, ...fileDependencies.importedBy, ...fileDependencies.extend],
+        children: [...fileDependencies.includes, ...fileDependencies.imports, ...fileDependencies.extendedBy]
+      }
+      return obj
+    }, {})
+  }
 }
 
 module.exports.parseDir = (dirpath, options) => {

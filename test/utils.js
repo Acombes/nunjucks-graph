@@ -1,16 +1,21 @@
 const { assert } = require('chai')
 
-module.exports.assertInclusion = function (graph, ancestor, child) {
-  assert.include(graph.index[ ancestor ].includes, child)
-  assert.include(graph.index[ child ].includedBy, ancestor)
+module.exports.assertInclusion = (graph, ancestor, child) => {
+  assert.include(graph[ ancestor ].includes, child)
+  assert.include(graph[ child ].includedBy, ancestor)
 }
 
-module.exports.assertExtension = function (graph, ancestor, child) {
-  assert.include(graph.index[ child ].extend, ancestor)
-  assert.include(graph.index[ ancestor ].extendedBy, child)
+module.exports.assertExtension = (graph, ancestor, child) => {
+  assert.include(graph[ child ].extend, ancestor)
+  assert.include(graph[ ancestor ].extendedBy, child)
 }
 
-module.exports.assertImport = function (graph, ancestor, child) {
-  assert.include(graph.index[ ancestor ].imports, child)
-  assert.include(graph.index[ child ].importedBy, ancestor)
+module.exports.assertImport = (graph, ancestor, child) => {
+  assert.include(graph[ ancestor ].imports, child)
+  assert.include(graph[ child ].importedBy, ancestor)
+}
+
+module.exports.assertDependency = (graph, ancestor, child) => {
+  assert.include(graph[ancestor].children, child)
+  assert.include(graph[child].parents, ancestor)
 }
