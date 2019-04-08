@@ -126,8 +126,8 @@ class NunjucksGraph {
   getSimpleIndex () {
     return Object.entries(this.index).reduce((obj, [filePath, fileDependencies]) => {
       obj[ filePath ] = {
-        parents: [...fileDependencies.includedBy, ...fileDependencies.importedBy, ...fileDependencies.extend],
-        children: [...fileDependencies.includes, ...fileDependencies.imports, ...fileDependencies.extendedBy]
+        parents: [...fileDependencies.includedBy, ...fileDependencies.importedBy, ...fileDependencies.extendedBy],
+        children: [...fileDependencies.includes, ...fileDependencies.imports, ...fileDependencies.extend]
       }
       return obj
     }, {})

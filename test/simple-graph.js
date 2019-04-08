@@ -93,7 +93,7 @@ describe('Simple graph', () => {
 
       const graph = nunjucksGraph.parseDir(baseDir).getSimpleIndex()
 
-      assertDependency(graph, parent, child)
+      assertDependency(graph, child, parent)
     })
   })
 })

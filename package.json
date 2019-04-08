@@ -1,6 +1,6 @@
 {
   "name": "nunjucks-graph",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Parse NJK files and extract a dependency graph",
   "main": "nunjucks-graph.js",
   "scripts": {
